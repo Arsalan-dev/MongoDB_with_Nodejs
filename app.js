@@ -20,13 +20,23 @@ connectToDb((error) => {
 
 //routes
 app.get("/books", (req, res) => {
+  // current page
+  const page = req.query.page || 0; // if req.query.page does have a value, it'll ignore logical OR, otherwise, default page is 0
+  const booksPerPage = 3;
+  
   let books = [];
 
-  //find method returns a cursor which is an object that essentially points to a setup docs outlined by our query. 2 methods: toArray, forEach
+  /*find method returns a cursor which is an object that essentially points 
+  to a setup docs outlined by our query. 2 methods: toArray, forEach */
 
+  /* .skip method is used to skip n number of pages (n = pages*booksPerPage)
+    and then limit the result by booksPerPage which is the limit method */
+  
   db.collection("books")
     .find()
     .sort({ author: 1 })
+    .skip(page * booksPerPage)
+    .limit(booksPerPage)
     .forEach((book) => books.push(book))
     .then(() => {
       res.status(200).json(books);
